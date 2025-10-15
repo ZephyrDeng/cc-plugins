@@ -1,0 +1,21 @@
+{
+  "name": "serena-indexer",
+  "version": "1.1.0",
+  "description": "专业的 Serena 索引管理插件 - 提供异步索引初始化、智能重建和自动化维护功能",
+  "author": {
+    "name": "Zephyr",
+    "email": "zephyrTang@aliyun.com"
+  },
+  "homepage": "https://github.com/ZephyrDeng/cc-plugins",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZephyrDeng/cc-plugins.git"
+  },
+  "license": "MIT",
+  "keywords": ["serena", "index", "semantic", "code-analysis", "async", "automation"],
+  "categories": ["development", "productivity", "automation"],
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./mcp.json"
+}

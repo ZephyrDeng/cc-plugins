@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "serena-index": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena"
+      ],
+      "env": {
+        "SERENA_INDEX_ROOT": "${CLAUDE_PLUGIN_ROOT}/.serena-data",
+        "SERENA_LOG_LEVEL": "info",
+        "SERENA_CACHE_ENABLED": "true",
+        "SERENA_PARALLEL_WORKERS": "4"
+      },
+      "timeout": 600000,
+      "restart_on_failure": true,
+      "max_restarts": 3
+    }
+  }
+}
