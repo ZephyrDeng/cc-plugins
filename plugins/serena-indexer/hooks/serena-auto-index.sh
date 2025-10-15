@@ -50,19 +50,38 @@ if ! command -v uvx &> /dev/null; then
     exit 0
 fi
 
+# 检查 metadata.json 文件完整性
+validate_metadata() {
+    if [[ ! -f "$INDEX_METADATA" ]]; then
+        return 1
+    fi
+    
+    # 检查文件是否为有效的 JSON
+    if ! jq empty "$INDEX_METADATA" 2>/dev/null; then
+        log_warning "metadata.json 文件损坏，将重新创建"
+        rm -f "$INDEX_METADATA"
+        return 1
+    fi
+    
+    return 0
+}
+
 # 检查是否需要智能索引决策
 should_skip_index() {
     local index_age_threshold=3600  # 1小时
     local change_threshold=10       # 10个文件变更
 
     # 如果索引不存在，需要索引
-    if [[ ! -f "$INDEX_METADATA" ]]; then
+    if ! validate_metadata; then
         return 1
     fi
 
     # 检查索引年龄
     local current_time=$(date +%s)
-    local index_time=$(jq -r '.timestamp // 0' "$INDEX_METADATA" 2>/dev/null || echo 0)
+    local index_time=$(jq -r '.timestamp // 0' "$INDEX_METADATA" 2>/dev/null)
+    if [[ -z "$index_time" || "$index_time" == "null" ]]; then
+        index_time=0
+    fi
     local index_age=$((current_time - index_time))
 
     if [[ $index_age -lt $index_age_threshold ]]; then
@@ -133,8 +152,12 @@ main() {
         "pre-tool")
             log_info "Serena 工具使用前 - 快速检查"
             # PreToolUse hook 执行更快的检查
-            if [[ -f "$INDEX_METADATA" ]]; then
-                local index_age=$(($(date +%s) - $(jq -r '.timestamp // 0' "$INDEX_METADATA" 2>/dev/null || echo 0)))
+            if validate_metadata; then
+                local timestamp=$(jq -r '.timestamp // 0' "$INDEX_METADATA" 2>/dev/null)
+                if [[ -z "$timestamp" || "$timestamp" == "null" ]]; then
+                    timestamp=0
+                fi
+                local index_age=$(($(date +%s) - timestamp))
                 if [[ $index_age -lt 7200 ]]; then  # 2小时内不重新索引
                     log_success "索引仍然新鲜，继续使用工具"
                 else
