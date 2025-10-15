@@ -1,28 +1,28 @@
 {
   "name": "claude-plugins",
-  "version": "1.0.0",
-  "description": "专业 Claude Code 插件集合 - 提供 Serena 索引管理和开发工具",
-  "author": {
+  "owner": {
     "name": "Zephyr",
     "email": "zephyrTang@aliyun.com"
   },
-  "homepage": "https://github.com/ZephyrDeng/cc-plugins",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ZephyrDeng/cc-plugins.git"
+  "metadata": {
+    "description": "专业 Claude Code 插件集合 - 提供 Serena 索引管理和开发工具",
+    "version": "1.0.0",
+    "homepage": "https://github.com/ZephyrDeng/cc-plugins"
   },
-  "license": "MIT",
-  "plugins": {
-    "serena-indexer": {
+  "plugins": [
+    {
       "name": "serena-indexer",
-      "version": "1.1.0",
+      "source": "./plugins/serena-indexer",
       "description": "专业的 Serena 索引管理插件 - 提供异步索引初始化、智能重建和自动化维护功能",
-      "categories": ["development", "productivity", "automation"],
+      "version": "1.1.0",
+      "author": {
+        "name": "Zephyr",
+        "email": "zephyrTang@aliyun.com"
+      },
       "keywords": ["serena", "index", "semantic", "code-analysis", "async", "automation"],
-      "path": "./plugins/serena-indexer",
-      "main": "./plugins/serena-indexer/.claude-plugin.json"
+      "homepage": "https://github.com/ZephyrDeng/cc-plugins",
+      "repository": "https://github.com/ZephyrDeng/cc-plugins.git",
+      "license": "MIT"
     }
-  },
-  "totalPlugins": 1,
-  "lastUpdated": "2025-10-15T23:15:00Z"
+  ]
 }
