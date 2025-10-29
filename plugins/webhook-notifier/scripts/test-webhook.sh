@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # 读取配置
-CONFIG_FILE="${HOME}/.claude/settings.json"
+CONFIG_FILE="${HOME}/.claude/webhook-notifier/config.json"
 LOG_DIR="${HOME}/.claude/webhook-notifier/logs"
 
 mkdir -p "${LOG_DIR}"
@@ -19,7 +19,7 @@ read_config() {
     fi
 
     if command -v jq &> /dev/null; then
-        jq -r ".\"webhook-notifier\".${key} // \"${default}\"" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
+        jq -r ".${key} // \"${default}\"" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
     else
         echo "${default}"
     fi

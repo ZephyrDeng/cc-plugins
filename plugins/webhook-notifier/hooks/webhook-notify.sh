@@ -16,7 +16,7 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$SCRIPT_DIR/..}"
 readonly LOG_DIR="${HOME}/.claude/webhook-notifier/logs"
-readonly CONFIG_FILE="${HOME}/.claude/settings.json"
+readonly CONFIG_FILE="${HOME}/.claude/webhook-notifier/config.json"
 
 # 确保日志目录存在
 mkdir -p "${LOG_DIR}"
@@ -44,9 +44,9 @@ read_config() {
 
     # 使用 jq 或 python 读取配置
     if command -v jq &> /dev/null; then
-        jq -r ".\"webhook-notifier\".${key} // \"${default}\"" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
+        jq -r ".${key} // \"${default}\"" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
     elif command -v python3 &> /dev/null; then
-        python3 -c "import json,sys; cfg=json.load(open('${CONFIG_FILE}')); print(cfg.get('webhook-notifier',{}).get('${key}','${default}'))" 2>/dev/null || echo "${default}"
+        python3 -c "import json,sys; cfg=json.load(open('${CONFIG_FILE}')); print(cfg.get('${key}','${default}'))" 2>/dev/null || echo "${default}"
     else
         echo "${default}"
     fi
