@@ -1,0 +1,60 @@
+{
+  "_comment": "Webhook Notifier 配置模板",
+  "_usage": "将此文件复制到 ~/.claude/webhook-notifier/config.json 并修改配置",
+  "_docs": "使用 /webhook-config 命令行工具进行配置更简单",
+
+  "webhook_url": "https://your-webhook-endpoint.com/notify",
+  "_webhook_url_comment": "必需：你的 Webhook 接收端点 URL",
+
+  "enabled": true,
+  "_enabled_comment": "是否启用通知，设为 false 可临时禁用",
+
+  "timeout": 10,
+  "_timeout_comment": "HTTP 请求超时时间（秒），范围：1-300",
+
+  "log_level": "info",
+  "_log_level_comment": "日志级别：debug | info | warn | error",
+
+  "payload_config": {
+    "_comment": "控制发送到 webhook 的数据内容",
+
+    "include_session_id": true,
+    "_include_session_id_comment": "包含会话 ID，用于关联多个通知",
+
+    "include_reason": true,
+    "_include_reason_comment": "包含会话结束原因（user/idle/error）",
+
+    "include_transcript_path": true,
+    "_include_transcript_path_comment": "包含会话记录文件路径",
+
+    "include_project_info": true,
+    "_include_project_info_comment": "包含项目信息（路径、Git 状态等）",
+
+    "include_git_info": true,
+    "_include_git_info_comment": "包含 Git 信息（分支、提交等）",
+
+    "custom_fields": {
+      "_comment": "自定义字段，将原样添加到 payload 中",
+      "_example_team": "your-team-name",
+      "_example_environment": "development"
+    }
+  },
+
+  "_payload_example": {
+    "_comment": "实际发送的 payload 示例",
+    "event": "session_end",
+    "timestamp": "2025-10-29T15:30:00Z",
+    "session_id": "abc123",
+    "reason": "user",
+    "transcript_path": "/path/to/transcript.txt",
+    "project": {
+      "path": "/path/to/project",
+      "name": "my-project"
+    },
+    "git": {
+      "branch": "main",
+      "commit": "abc123def",
+      "has_changes": false
+    }
+  }
+}
