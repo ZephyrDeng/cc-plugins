@@ -1,0 +1,71 @@
+# Claude 插件项目 .gitignore
+
+# Claude 相关
+.claude/doc/
+.claude/cache/
+.claude/temp/
+.claude/session-*.json
+.claude/hooks/temp-*
+
+# Serena 索引数据和配置
+.serena/
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 日志文件
+logs/
+*.log
+*.log.*
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+
+# 备份文件
+*.bak
+*.backup
+*.old
+
+# 测试覆盖率
+coverage/
+.coverage
+.nyc_output/
+
+# 依赖目录（如果有的话）
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 构建产物
+dist/
+build/
+out/
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# 系统文件
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# 包管理器
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

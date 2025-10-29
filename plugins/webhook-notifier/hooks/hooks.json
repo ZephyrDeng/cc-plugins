@@ -1,0 +1,27 @@
+{
+  "description": "在 Claude Code 会话结束时自动发送 webhook 通知",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/webhook-notify.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/webhook-notify.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

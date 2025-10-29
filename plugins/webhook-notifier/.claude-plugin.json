@@ -1,0 +1,30 @@
+{
+  "name": "webhook-notifier",
+  "version": "1.0.0",
+  "description": "在 Claude Code 会话结束时自动发送 webhook 通知 - 支持自定义 payload、测试命令和日志查看",
+  "author": {
+    "name": "Zephyr",
+    "email": "zephyrTang@aliyun.com"
+  },
+  "homepage": "https://github.com/ZephyrDeng/cc-plugins",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZephyrDeng/cc-plugins.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "webhook",
+    "notification",
+    "automation",
+    "integration",
+    "hooks",
+    "session-end"
+  ],
+  "categories": [
+    "automation",
+    "integration",
+    "productivity"
+  ],
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json"
+}

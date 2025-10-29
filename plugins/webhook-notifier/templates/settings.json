@@ -1,0 +1,17 @@
+{
+  "webhook-notifier": {
+    "webhook_url": "https://your-webhook-endpoint.com/notify",
+    "enabled": true,
+    "timeout": 10,
+    "log_level": "info",
+    "log_directory": "~/.claude/webhook-notifier/logs",
+    "payload_config": {
+      "include_session_id": true,
+      "include_reason": true,
+      "include_transcript_path": true,
+      "include_project_info": true,
+      "include_git_info": true,
+      "custom_fields": {}
+    }
+  }
+}

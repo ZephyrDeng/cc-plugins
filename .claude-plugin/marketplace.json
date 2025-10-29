@@ -1,0 +1,42 @@
+{
+  "name": "claude-plugins",
+  "owner": {
+    "name": "Zephyr",
+    "email": "zephyrTang@aliyun.com"
+  },
+  "metadata": {
+    "description": "专业 Claude Code 插件集合 - 提供 Serena 索引管理和开发工具",
+    "version": "1.0.0",
+    "homepage": "https://github.com/ZephyrDeng/cc-plugins"
+  },
+  "plugins": [
+    {
+      "name": "serena-indexer",
+      "source": "./plugins/serena-indexer",
+      "description": "专业的 Serena 索引管理插件 - 提供异步索引初始化、智能重建和自动化维护功能",
+      "version": "1.1.0",
+      "author": {
+        "name": "Zephyr",
+        "email": "zephyrTang@aliyun.com"
+      },
+      "keywords": ["serena", "index", "semantic", "code-analysis", "async", "automation"],
+      "homepage": "https://github.com/ZephyrDeng/cc-plugins",
+      "repository": "https://github.com/ZephyrDeng/cc-plugins.git",
+      "license": "MIT"
+    },
+    {
+      "name": "webhook-notifier",
+      "source": "./plugins/webhook-notifier",
+      "description": "在 Claude Code 会话结束时自动发送 webhook 通知 - 支持自定义 payload、测试命令和日志查看",
+      "version": "1.0.0",
+      "author": {
+        "name": "Zephyr",
+        "email": "zephyrTang@aliyun.com"
+      },
+      "keywords": ["webhook", "notification", "automation", "integration", "hooks", "session-end"],
+      "homepage": "https://github.com/ZephyrDeng/cc-plugins",
+      "repository": "https://github.com/ZephyrDeng/cc-plugins.git",
+      "license": "MIT"
+    }
+  ]
+}
