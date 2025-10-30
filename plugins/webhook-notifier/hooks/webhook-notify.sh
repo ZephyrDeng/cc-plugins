@@ -138,7 +138,7 @@ send_webhook() {
         "${webhook_url}" 2>&1)
 
     http_code=$(echo "${response}" | tail -n 1)
-    response_body=$(echo "${response}" | head -n -1)
+    response_body=$(echo "${response}" | sed '$d')
 
     if [[ "${http_code}" -ge 200 && "${http_code}" -lt 300 ]]; then
         log_info "Webhook sent successfully (HTTP ${http_code})"
@@ -165,14 +165,9 @@ main() {
         exit 1
     fi
 
-    # 读取 hook input from stdin
+    # 读取 hook input from stdin (Claude Code 总是通过 stdin 传递 JSON 数据)
     local hook_input
-    if [[ -p /dev/stdin ]]; then
-        hook_input=$(cat)
-    else
-        log_error "No input provided via stdin"
-        exit 1
-    fi
+    hook_input=$(cat)
 
     # 验证这是一个 Stop 或 SessionEnd 事件
     local hook_event=$(echo "${hook_input}" | jq -r '.hook_event_name // ""')

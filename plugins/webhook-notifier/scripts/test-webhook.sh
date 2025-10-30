@@ -76,7 +76,7 @@ response=$(curl -X POST \
     "${webhook_url}" 2>&1)
 
 http_code=$(echo "${response}" | tail -n 1)
-response_body=$(echo "${response}" | head -n -1)
+response_body=$(echo "${response}" | sed '$d')
 
 # 记录日志
 log_file="${LOG_DIR}/$(date '+%Y-%m-%d').log"
