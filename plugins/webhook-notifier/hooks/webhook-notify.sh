@@ -75,6 +75,75 @@ get_git_info() {
 EOF
 }
 
+# 从 transcript 提取最后一条 assistant 消息
+extract_last_message() {
+    local transcript_path="$1"
+    local max_length="${2:-200}"
+
+    # 检查文件是否存在
+    if [[ ! -f "${transcript_path}" ]]; then
+        echo ""
+        return 1
+    fi
+
+    # 检查文件是否可读
+    if [[ ! -r "${transcript_path}" ]]; then
+        echo ""
+        return 1
+    fi
+
+    local last_message=""
+    local msg_type="info"
+
+    # 尝试使用 jq 提取最后的 assistant 消息
+    if command -v jq &> /dev/null; then
+        # 读取最后 30 行，查找最后一条 role="assistant" 的消息
+        last_message=$(tail -30 "${transcript_path}" 2>/dev/null | \
+            jq -r 'select(.role=="assistant") | .content' 2>/dev/null | \
+            tail -1 | \
+            head -c "${max_length}")
+    else
+        # 降级：使用 grep 和基本文本处理
+        last_message=$(tail -30 "${transcript_path}" 2>/dev/null | \
+            grep -o '"role":"assistant","content":"[^"]*"' 2>/dev/null | \
+            tail -1 | \
+            sed 's/.*"content":"\(.*\)"/\1/' | \
+            head -c "${max_length}")
+    fi
+
+    # 如果提取失败，返回空
+    if [[ -z "${last_message}" ]]; then
+        echo ""
+        return 1
+    fi
+
+    # 识别消息类型
+    # 1. Question: 包含问号或疑问词
+    if echo "${last_message}" | grep -qE '[?？]|吗|呢|如何|怎么|什么|哪'; then
+        msg_type="question"
+    # 2. Confirmation: 包含确认相关词
+    elif echo "${last_message}" | grep -qE '是否|同意|确认|可以吗'; then
+        msg_type="confirmation"
+    # 3. Choice: 包含选项标记
+    elif echo "${last_message}" | grep -qE '[0-9]\.|选择|或者|还是'; then
+        msg_type="choice"
+    fi
+
+    # 返回 JSON 格式的上下文信息
+    if command -v jq &> /dev/null; then
+        jq -n \
+            --arg msg "${last_message}" \
+            --arg type "${msg_type}" \
+            '{"last_message": $msg, "message_type": $type}'
+    else
+        # 降级：手动构建 JSON（需要转义特殊字符）
+        local escaped_msg=$(echo "${last_message}" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g')
+        echo "{\"last_message\": \"${escaped_msg}\", \"message_type\": \"${msg_type}\"}"
+    fi
+
+    return 0
+}
+
 # 构建 notification payload
 build_notification_payload() {
     local hook_input="$1"
@@ -83,16 +152,48 @@ build_notification_payload() {
     local notification_message=$(echo "${hook_input}" | jq -r '.notification_message // "Claude is waiting for your input"')
     local notification_type=$(echo "${hook_input}" | jq -r '.notification_type // "waiting_for_input"')
     local session_id=$(echo "${hook_input}" | jq -r '.session_id // ""')
+    local transcript_path=$(echo "${hook_input}" | jq -r '.transcript_path // ""')
     local cwd=$(echo "${hook_input}" | jq -r '.cwd // ""')
     local project_dir="${CLAUDE_PROJECT_DIR:-$cwd}"
 
     # 获取 git 信息
     local git_info=$(get_git_info "${project_dir}")
 
+    # 检查是否启用上下文提取
+    local include_context=$(read_config "include_notification_context" "true")
+    local context_length=$(read_config "notification_context_length" "200")
+
+    # 尝试提取上下文信息
+    local context_json=""
+    if [[ "${include_context}" == "true" && -n "${transcript_path}" ]]; then
+        context_json=$(extract_last_message "${transcript_path}" "${context_length}")
+    fi
+
     # 构建 payload
     local timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
 
-    cat <<EOF
+    # 根据是否有上下文构建不同的 payload
+    if [[ -n "${context_json}" ]]; then
+        cat <<EOF
+{
+  "event": "notification",
+  "notification_type": "${notification_type}",
+  "message": "${notification_message}",
+  "context": ${context_json},
+  "timestamp": "${timestamp}",
+  "session": {
+    "id": "${session_id}"
+  },
+  "project": {
+    "directory": "${project_dir}",
+    ${git_info}
+  },
+  "source": "claude-code-webhook-notifier"
+}
+EOF
+    else
+        # 降级：不包含 context 字段
+        cat <<EOF
 {
   "event": "notification",
   "notification_type": "${notification_type}",
@@ -108,6 +209,7 @@ build_notification_payload() {
   "source": "claude-code-webhook-notifier"
 }
 EOF
+    fi
 }
 
 # 构建 session_end payload

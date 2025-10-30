@@ -1,6 +1,6 @@
 # Webhook Notifier
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/your-repo/webhook-notifier)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/your-repo/webhook-notifier)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 通用 webhook 通知插件，用于 Claude Code 会话事件通知。在会话结束或 Claude 等待用户输入时，自动向配置的 webhook 端点发送 HTTP POST 请求，支持飞书、Slack、Discord、钉钉等任何接受 POST 请求的 webhook 服务。
@@ -9,11 +9,13 @@
 
 - ✨ **自动通知**: 会话结束时或 Claude 等待输入时自动发送通知，无需手动触发
 - ⏰ **实时提醒**: 当 Claude 等待您确认方案、选择选项或输入时，立即收到通知
+- 🎯 **智能上下文**: 通知包含 Claude 最后一条消息和问题类型识别（v1.2.0+）
 - 🌐 **通用兼容**: 支持任何接受 POST 请求的 webhook 端点
 - 📊 **丰富上下文**: 包含会话信息、项目状态、Git 信息等详细数据
 - 🔧 **灵活配置**: 自定义 webhook URL、超时时间、payload 内容、通知类型
 - 📝 **完整日志**: 记录所有通知发送历史，便于审计和调试
 - 🧪 **测试工具**: 内置测试命令，快速验证配置正确性
+- 🛡️ **智能降级**: 上下文提取失败时自动降级为基本通知，确保通知可靠性
 
 ## 目录
 
@@ -122,6 +124,8 @@ cp -r claude-plugins/plugins/webhook-notifier ~/.claude/plugins/
     "webhook_url": "https://your-webhook-endpoint.com/notify",
     "enabled": true,
     "enable_notification_hook": true,
+    "include_notification_context": true,
+    "notification_context_length": 200,
     "timeout": 10,
     "log_level": "info",
     "log_directory": "~/.claude/webhook-notifier/logs",
@@ -176,6 +180,33 @@ cp -r claude-plugins/plugins/webhook-notifier ~/.claude/plugins/
 
 **默认值**: `true`
 **使用场景**: 如果您希望减少通知频率，只在会话结束时接收通知，可以设置为 `false`
+
+#### include_notification_context（可选）🆕
+
+是否在 Notification 通知中包含对话上下文信息。当设置为 `true` 时，通知将包含:
+- **last_message**: Claude 最后一条消息内容（前 200 字符）
+- **message_type**: 消息类型识别
+  - `question`: 包含问号或疑问词的问题
+  - `confirmation`: 需要确认的提议
+  - `choice`: 包含选项的选择题
+  - `info`: 普通信息
+
+设置为 `false` 时，只发送基本通知消息。
+
+**默认值**: `true`
+**使用场景**:
+- 启用时可以在通知中直接看到 Claude 在等待什么，无需打开 Claude Code
+- 禁用时可以减少 payload 大小和处理开销
+
+**降级机制**: 如果 transcript 文件不可读或提取失败，会自动降级为基本通知
+
+#### notification_context_length（可选）🆕
+
+提取的上下文消息最大字符数。
+
+**默认值**: `200`
+**范围**: 50-500
+**说明**: 较大的值可以获取更完整的上下文，但会增加 payload 大小
 
 #### timeout（可选）
 
@@ -388,9 +419,36 @@ HTTP 请求超时时间（秒）。
 
 ## Payload 格式
 
-### Notification 事件 Payload
+### Notification 事件 Payload（带上下文）🆕
 
-当 Claude 等待您输入时发送:
+当 Claude 等待您输入时发送（v1.2.0+ 默认格式）:
+
+```json
+{
+  "event": "notification",
+  "notification_type": "waiting_for_input",
+  "message": "Claude is waiting for your input",
+  "context": {
+    "last_message": "我建议使用 React + TypeScript。您同意这个方案吗?",
+    "message_type": "confirmation"
+  },
+  "timestamp": "2025-01-30T10:30:45.123Z",
+  "session": {
+    "id": "f7c8d9e0-a1b2-c3d4-e5f6-789012345678"
+  },
+  "project": {
+    "directory": "/Users/username/projects/my-app",
+    "git_branch": "feature/webhook-integration",
+    "git_repo": "https://github.com/username/my-app.git",
+    "git_commit": "a1b2c3d4e5f6789012345678901234567890abcd"
+  },
+  "source": "claude-code-webhook-notifier"
+}
+```
+
+### Notification 事件 Payload（降级格式）
+
+当无法提取上下文或 `include_notification_context=false` 时:
 
 ```json
 {
@@ -458,6 +516,20 @@ HTTP 请求超时时间（秒）。
 #### message（字符串，仅 notification 事件）
 
 通知消息内容，描述具体情况。
+
+#### context（对象，仅 notification 事件，v1.2.0+）🆕
+
+对话上下文信息，帮助您了解 Claude 在等待什么。
+
+**字段**:
+- `last_message` (字符串): Claude 最后一条消息的内容（最多 200 字符）
+- `message_type` (字符串): 消息类型
+  - `question`: 包含问号或疑问词的问题
+  - `confirmation`: 需要确认的提议（包含"是否"、"同意"等词）
+  - `choice`: 包含选项的选择题（包含编号或"选择"等词）
+  - `info`: 普通信息消息
+
+**注意**: 此字段仅在 `include_notification_context=true`（默认）且成功提取上下文时才存在。提取失败时会自动降级为基本格式。
 
 #### timestamp（ISO 8601 字符串）
 
