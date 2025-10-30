@@ -5,6 +5,34 @@ All notable changes to the webhook-notifier plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-30
+
+### Added
+- ⏰ **Notification Hook 支持**: 新增 Notification 事件监听,当 Claude 等待用户输入时自动发送通知
+- 🔔 **实时提醒功能**: 在以下场景立即通知用户:
+  - Claude 等待您确认方案时
+  - Claude 等待您选择选项时
+  - Claude 等待您输入时(输入框空闲 60 秒)
+  - Claude 需要您授权使用工具时
+- ⚙️ **新增配置选项**: `enable_notification_hook` 控制是否启用 Notification 通知
+- 📊 **新增 Payload 格式**: notification 事件专用 payload 格式,包含 `notification_type` 和 `message` 字段
+- 📝 **完善文档**: README 中详细说明 Notification 功能的使用场景和配置方法
+
+### Changed
+- 🔄 **脚本增强**: webhook-notify.sh 支持多事件类型处理,根据事件动态构建 payload
+- 📋 **配置模板更新**: 添加 `enable_notification_hook` 配置项示例
+- 📖 **Hooks 描述更新**: 支持 Notification, Stop, SessionEnd 三种事件类型
+
+### Technical Details
+- notification 事件使用 `build_notification_payload()` 函数构建专用 payload
+- session_end 事件使用 `build_session_end_payload()` 函数(原 `build_payload`)
+- 事件类型检测和配置检查逻辑优化,支持选择性启用不同类型通知
+
+### Benefits
+- 🎯 **更及时的响应**: 不再需要等到会话结束才知道 Claude 在等待输入
+- 💪 **提高效率**: 及时返回处理 Claude 的等待,避免时间浪费
+- 🎛️ **灵活控制**: 可根据需要启用或禁用 Notification 通知,避免通知过于频繁
+
 ## [1.0.0] - 2025-01-29
 
 ### Added
@@ -158,5 +186,6 @@ This project follows [Semantic Versioning](https://semver.org/):
 - **MINOR** version for backwards-compatible functionality
 - **PATCH** version for backwards-compatible bug fixes
 
+[1.1.0]: https://github.com/ZephyrDeng/cc-plugins/releases/tag/webhook-notifier-v1.1.0
 [1.0.0]: https://github.com/ZephyrDeng/cc-plugins/releases/tag/webhook-notifier-v1.0.0
-[Unreleased]: https://github.com/ZephyrDeng/cc-plugins/compare/webhook-notifier-v1.0.0...HEAD
+[Unreleased]: https://github.com/ZephyrDeng/cc-plugins/compare/webhook-notifier-v1.1.0...HEAD

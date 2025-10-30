@@ -5,10 +5,10 @@ set -euo pipefail
 # ============================================================================
 # Webhook Notifier Hook Script
 # ============================================================================
-# 在 Claude Code 会话结束时发送 webhook 通知
+# 在 Claude Code 会话事件发生时发送 webhook 通知
 #
-# Hook Events: Stop, SessionEnd
-# Input: JSON from stdin containing session info
+# Hook Events: Notification, Stop, SessionEnd
+# Input: JSON from stdin containing event info
 # Output: HTTP POST to configured webhook URL
 # ============================================================================
 
@@ -44,9 +44,10 @@ read_config() {
 
     # 使用 jq 或 python 读取配置
     if command -v jq &> /dev/null; then
-        jq -r ".${key} // \"${default}\"" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
+        # 使用 if-then-else 避免 // 操作符将 false 当作 null 处理
+        jq -r "if has(\"${key}\") then .${key} | tostring else \"${default}\" end" "${CONFIG_FILE}" 2>/dev/null || echo "${default}"
     elif command -v python3 &> /dev/null; then
-        python3 -c "import json,sys; cfg=json.load(open('${CONFIG_FILE}')); print(cfg.get('${key}','${default}'))" 2>/dev/null || echo "${default}"
+        python3 -c "import json,sys; cfg=json.load(open('${CONFIG_FILE}')); val=cfg.get('${key}'); print(str(val) if val is not None else '${default}')" 2>/dev/null || echo "${default}"
     else
         echo "${default}"
     fi
@@ -74,8 +75,43 @@ get_git_info() {
 EOF
 }
 
-# 构建 webhook payload
-build_payload() {
+# 构建 notification payload
+build_notification_payload() {
+    local hook_input="$1"
+
+    # 从 hook input 提取信息
+    local notification_message=$(echo "${hook_input}" | jq -r '.notification_message // "Claude is waiting for your input"')
+    local notification_type=$(echo "${hook_input}" | jq -r '.notification_type // "waiting_for_input"')
+    local session_id=$(echo "${hook_input}" | jq -r '.session_id // ""')
+    local cwd=$(echo "${hook_input}" | jq -r '.cwd // ""')
+    local project_dir="${CLAUDE_PROJECT_DIR:-$cwd}"
+
+    # 获取 git 信息
+    local git_info=$(get_git_info "${project_dir}")
+
+    # 构建 payload
+    local timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+
+    cat <<EOF
+{
+  "event": "notification",
+  "notification_type": "${notification_type}",
+  "message": "${notification_message}",
+  "timestamp": "${timestamp}",
+  "session": {
+    "id": "${session_id}"
+  },
+  "project": {
+    "directory": "${project_dir}",
+    ${git_info}
+  },
+  "source": "claude-code-webhook-notifier"
+}
+EOF
+}
+
+# 构建 session_end payload
+build_session_end_payload() {
     local hook_input="$1"
 
     # 从 hook input 提取信息
@@ -169,18 +205,35 @@ main() {
     local hook_input
     hook_input=$(cat)
 
-    # 验证这是一个 Stop 或 SessionEnd 事件
+    # 获取事件类型
     local hook_event=$(echo "${hook_input}" | jq -r '.hook_event_name // ""')
-    if [[ "${hook_event}" != "Stop" && "${hook_event}" != "SessionEnd" ]]; then
-        log_info "Ignoring event: ${hook_event}"
-        exit 0
-    fi
 
-    log_info "Processing ${hook_event} event"
+    # 验证事件类型并检查是否启用
+    case "${hook_event}" in
+        "Notification")
+            local enable_notification=$(read_config "enable_notification_hook" "true")
+            if [[ "${enable_notification}" != "true" ]]; then
+                log_info "Notification hook is disabled"
+                exit 0
+            fi
+            log_info "Processing Notification event"
+            ;;
+        "Stop"|"SessionEnd")
+            log_info "Processing ${hook_event} event"
+            ;;
+        *)
+            log_info "Ignoring unsupported event: ${hook_event}"
+            exit 0
+            ;;
+    esac
 
-    # 构建 payload
+    # 根据事件类型构建不同的 payload
     local payload
-    payload=$(build_payload "${hook_input}")
+    if [[ "${hook_event}" == "Notification" ]]; then
+        payload=$(build_notification_payload "${hook_input}")
+    else
+        payload=$(build_session_end_payload "${hook_input}")
+    fi
 
     # 记录 payload（仅在 debug 模式）
     local log_level=$(read_config "log_level" "info")

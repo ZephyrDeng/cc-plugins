@@ -9,6 +9,9 @@
   "enabled": true,
   "_enabled_comment": "是否启用通知，设为 false 可临时禁用",
 
+  "enable_notification_hook": true,
+  "_enable_notification_hook_comment": "是否启用 Notification 事件通知（Claude 等待输入时），设为 false 只在会话结束时通知",
+
   "timeout": 10,
   "_timeout_comment": "HTTP 请求超时时间（秒），范围：1-300",
 
@@ -40,21 +43,39 @@
     }
   },
 
-  "_payload_example": {
+  "_payload_examples": {
     "_comment": "实际发送的 payload 示例",
-    "event": "session_end",
-    "timestamp": "2025-10-29T15:30:00Z",
-    "session_id": "abc123",
-    "reason": "user",
-    "transcript_path": "/path/to/transcript.txt",
-    "project": {
-      "path": "/path/to/project",
-      "name": "my-project"
+
+    "notification_event": {
+      "event": "notification",
+      "notification_type": "waiting_for_input",
+      "message": "Claude is waiting for your input",
+      "timestamp": "2025-10-29T15:30:00Z",
+      "session": {
+        "id": "abc123"
+      },
+      "project": {
+        "directory": "/path/to/project",
+        "git_branch": "main",
+        "git_repo": "https://github.com/user/repo.git",
+        "git_commit": "abc123def"
+      }
     },
-    "git": {
-      "branch": "main",
-      "commit": "abc123def",
-      "has_changes": false
+
+    "session_end_event": {
+      "event": "session_end",
+      "timestamp": "2025-10-29T15:30:00Z",
+      "session": {
+        "id": "abc123",
+        "reason": "user",
+        "transcript_path": "/path/to/transcript.txt"
+      },
+      "project": {
+        "directory": "/path/to/project",
+        "git_branch": "main",
+        "git_repo": "https://github.com/user/repo.git",
+        "git_commit": "abc123def"
+      }
     }
   }
 }

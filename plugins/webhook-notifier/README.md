@@ -1,16 +1,17 @@
 # Webhook Notifier
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/your-repo/webhook-notifier)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/your-repo/webhook-notifier)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-通用 webhook 通知插件，用于 Claude Code 会话事件通知。在会话结束或特定事件发生时，自动向配置的 webhook 端点发送 HTTP POST 请求，支持飞书、Slack、Discord、钉钉等任何接受 POST 请求的 webhook 服务。
+通用 webhook 通知插件，用于 Claude Code 会话事件通知。在会话结束或 Claude 等待用户输入时，自动向配置的 webhook 端点发送 HTTP POST 请求，支持飞书、Slack、Discord、钉钉等任何接受 POST 请求的 webhook 服务。
 
 ## 特性
 
-- ✨ **自动通知**: 会话结束时自动发送通知，无需手动触发
+- ✨ **自动通知**: 会话结束时或 Claude 等待输入时自动发送通知，无需手动触发
+- ⏰ **实时提醒**: 当 Claude 等待您确认方案、选择选项或输入时，立即收到通知
 - 🌐 **通用兼容**: 支持任何接受 POST 请求的 webhook 端点
 - 📊 **丰富上下文**: 包含会话信息、项目状态、Git 信息等详细数据
-- 🔧 **灵活配置**: 自定义 webhook URL、超时时间、payload 内容
+- 🔧 **灵活配置**: 自定义 webhook URL、超时时间、payload 内容、通知类型
 - 📝 **完整日志**: 记录所有通知发送历史，便于审计和调试
 - 🧪 **测试工具**: 内置测试命令，快速验证配置正确性
 
@@ -53,10 +54,15 @@
 {
   "webhook-notifier": {
     "webhook_url": "https://your-webhook-endpoint.com/notify",
-    "enabled": true
+    "enabled": true,
+    "enable_notification_hook": true
   }
 }
 ```
+
+**配置说明**:
+- `enabled`: 总开关,控制所有通知
+- `enable_notification_hook`: 是否启用 Notification 事件通知(Claude 等待输入时)
 
 ### 3. 测试配置
 
@@ -115,6 +121,7 @@ cp -r claude-plugins/plugins/webhook-notifier ~/.claude/plugins/
   "webhook-notifier": {
     "webhook_url": "https://your-webhook-endpoint.com/notify",
     "enabled": true,
+    "enable_notification_hook": true,
     "timeout": 10,
     "log_level": "info",
     "log_directory": "~/.claude/webhook-notifier/logs",
@@ -156,6 +163,19 @@ cp -r claude-plugins/plugins/webhook-notifier ~/.claude/plugins/
 是否启用插件。设置为 `false` 可以临时禁用通知，无需删除配置。
 
 **默认值**: `true`
+
+#### enable_notification_hook（可选）
+
+是否启用 Notification 事件通知。当设置为 `true` 时，会在以下情况发送通知:
+- Claude 等待您确认方案时
+- Claude 等待您选择选项时
+- Claude 等待您输入时(输入框空闲 60 秒)
+- Claude 需要您授权使用工具时
+
+设置为 `false` 时，只在会话结束时发送通知。
+
+**默认值**: `true`
+**使用场景**: 如果您希望减少通知频率，只在会话结束时接收通知，可以设置为 `false`
 
 #### timeout（可选）
 
@@ -368,16 +388,41 @@ HTTP 请求超时时间（秒）。
 
 ## Payload 格式
 
-### 完整 Payload 示例
+### Notification 事件 Payload
+
+当 Claude 等待您输入时发送:
+
+```json
+{
+  "event": "notification",
+  "notification_type": "waiting_for_input",
+  "message": "Claude is waiting for your input",
+  "timestamp": "2025-01-30T10:30:45.123Z",
+  "session": {
+    "id": "f7c8d9e0-a1b2-c3d4-e5f6-789012345678"
+  },
+  "project": {
+    "directory": "/Users/username/projects/my-app",
+    "git_branch": "feature/webhook-integration",
+    "git_repo": "https://github.com/username/my-app.git",
+    "git_commit": "a1b2c3d4e5f6789012345678901234567890abcd"
+  },
+  "source": "claude-code-webhook-notifier"
+}
+```
+
+### Session End 事件 Payload
+
+会话结束时发送:
 
 ```json
 {
   "event": "session_end",
-  "timestamp": "2025-01-29T10:30:45.123Z",
+  "timestamp": "2025-01-30T10:30:45.123Z",
   "session": {
     "id": "f7c8d9e0-a1b2-c3d4-e5f6-789012345678",
     "reason": "user_stop",
-    "transcript_path": "/Users/username/.claude/sessions/2025-01-29_session.md"
+    "transcript_path": "/Users/username/.claude/sessions/2025-01-30_session.md"
   },
   "project": {
     "directory": "/Users/username/projects/my-app",
@@ -396,9 +441,23 @@ HTTP 请求超时时间（秒）。
 事件类型标识符。
 
 **可能值**:
+- `notification`: Claude 等待用户输入或需要权限
 - `session_end`: 会话正常结束
 - `session_error`: 会话因错误中断
 - `test`: 测试通知
+
+#### notification_type（字符串，仅 notification 事件）
+
+通知子类型，说明具体的通知原因。
+
+**可能值**:
+- `waiting_for_input`: Claude 正在等待您的输入
+- `permission_required`: Claude 需要您的权限
+- `idle`: 输入框空闲超过 60 秒
+
+#### message（字符串，仅 notification 事件）
+
+通知消息内容，描述具体情况。
 
 #### timestamp（ISO 8601 字符串）
 
