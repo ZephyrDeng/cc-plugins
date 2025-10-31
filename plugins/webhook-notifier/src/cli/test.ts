@@ -32,10 +32,12 @@ export async function testCommand(options: {
     // 创建测试事件
     const testEvent: NotificationInput = {
       hook_event_name: "Notification",
+      message: "This is a test notification from webhook-notifier CLI",
       session_id: "test-cli-" + Date.now(),
       transcript_path: "/tmp/test-transcript.jsonl",
       cwd: process.cwd(),
-      permission_mode: "enabled",
+      permission_mode: "default",
+      notification_type: "waiting_for_input",
     };
 
     // 处理测试事件

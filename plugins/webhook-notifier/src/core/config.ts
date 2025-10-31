@@ -161,6 +161,20 @@ export class ConfigManager {
   }
 
   /**
+   * 安全获取配置值，不存在时返回默认值
+   * @param path 配置路径
+   * @param defaultValue 默认值
+   * @returns 配置值或默认值
+   */
+  getSafe<T = any>(path: string, defaultValue?: T): T | undefined {
+    try {
+      return this.get<T>(path);
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  /**
    * 获取配置文件路径
    */
   getConfigPath(): string | null {

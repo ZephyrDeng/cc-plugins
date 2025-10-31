@@ -19,8 +19,8 @@ const buildOptions = {
   banner: {
     js: "#!/usr/bin/env node",
   },
-  // Mark all Node.js built-in modules and problematic dependencies as external
-  packages: "external", // Don't bundle node_modules
+  // Only exclude packages with native/binary dependencies
+  external: ['node-notifier'],
   minify: !watch,
   sourcemap: true,
   logLevel: "info",
