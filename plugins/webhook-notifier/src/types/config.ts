@@ -74,14 +74,19 @@ export const PayloadConfigSchema = z.object({
 });
 export type PayloadConfig = z.infer<typeof PayloadConfigSchema>;
 
-export const WebhookNotifierConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  url: z.string().url(),
-  timeout: z.number().int().min(1).max(60).default(10),
-  retry: RetryConfigSchema.default({}),
-  headers: z.record(z.string()).default({}),
-  payload: PayloadConfigSchema.default({}),
-});
+export const WebhookNotifierConfigSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    url: z.string().url().optional(),
+    timeout: z.number().int().min(1).max(60).default(10),
+    retry: RetryConfigSchema.default({}),
+    headers: z.record(z.string()).default({}),
+    payload: PayloadConfigSchema.default({}),
+  })
+  .refine((config) => !config.enabled || config.url, {
+    message: "URL is required when webhook is enabled",
+    path: ["url"],
+  });
 export type WebhookNotifierConfig = z.infer<typeof WebhookNotifierConfigSchema>;
 
 // ==================== macOS Notifier Config ====================

@@ -24,10 +24,10 @@ export class WebhookNotifier extends BaseNotifier {
   }
 
   isEnabled(): boolean {
-    return (
-      this.config.has("notifiers.webhook") &&
-      this.config.get<boolean>("notifiers.webhook.enabled")
+    const webhook = this.config.getSafe<WebhookNotifierConfig>(
+      "notifiers.webhook"
     );
+    return webhook?.enabled ?? false;
   }
 
   getName(): string {
