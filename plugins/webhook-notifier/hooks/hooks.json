@@ -1,5 +1,5 @@
 {
-  "description": "在 Claude Code 会话事件发生时自动发送 webhook 通知",
+  "description": "在 Claude Code 会话事件发生时自动发送通知（支持 Webhook 和 macOS 通知）",
   "hooks": {
     "Notification": [
       {
@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/webhook-notify.sh",
-            "timeout": 15
+            "timeout": 30
           }
         ]
       }
@@ -18,7 +18,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/webhook-notify.sh",
-            "timeout": 15
+            "timeout": 30
           }
         ]
       }
@@ -29,7 +29,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/webhook-notify.sh",
-            "timeout": 15
+            "timeout": 30
           }
         ]
       }

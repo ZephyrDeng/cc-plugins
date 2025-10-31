@@ -1,0 +1,15 @@
+logging:
+  level: info
+  directory: ./logs
+  format: json
+  rotation: daily
+
+events:
+  notification:
+    enabled: false
+  session_end:
+    enabled: false
+
+notifiers:
+  macos:
+    enabled: false

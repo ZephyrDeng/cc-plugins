@@ -1,0 +1,83 @@
+# Webhook Notifier 配置文件示例
+# 复制此文件到以下位置之一:
+#   - 项目根目录: .webhookrc.yaml
+#   - 用户目录: ~/.webhookrc.yaml
+#   - Claude 目录: ~/.claude/webhook-notifier/config.yaml
+
+# 日志配置
+logging:
+  level: info                # debug | info | warn | error
+  directory: ~/.claude/webhook-notifier/logs
+  format: json               # json | text
+  rotation: daily            # daily | size
+
+# Hook 事件配置
+events:
+  # Notification 事件（Claude 等待输入时）
+  notification:
+    enabled: true
+    extract_context: true    # 是否提取最后消息
+    context_length: 200      # 上下文最大长度
+
+  # Session End 事件（会话结束时）
+  session_end:
+    enabled: true
+
+# 通知器配置
+notifiers:
+  # Webhook 通知器
+  webhook:
+    enabled: true
+    url: ${WEBHOOK_URL}      # 支持环境变量
+    timeout: 10              # 超时时间（秒）
+
+    # 重试配置
+    retry:
+      enabled: false
+      max_attempts: 3
+      backoff: exponential   # linear | exponential
+
+    # 自定义请求头
+    headers:
+      Authorization: Bearer ${WEBHOOK_TOKEN}
+      X-Custom-Header: custom-value
+
+    # Payload 配置
+    payload:
+      include:
+        - session_id
+        - timestamp
+        - project_info
+        - git_info
+        # - context        # 可选：通知上下文
+        # - transcript_path  # 可选：会话记录路径
+
+      exclude: []
+
+      # 自定义字段
+      custom_fields:
+        environment: production
+        team: engineering
+
+  # macOS 系统通知
+  macos:
+    enabled: true
+    title: Claude Code
+    sound: default           # default | Ping | Glass | Hero | Submarine
+
+    # 点击通知时的动作
+    actions:
+      - label: Open Claude
+        command: open -a "Claude Code"
+
+    # 通知模板
+    templates:
+      notification:
+        title: "{{title}}"
+        subtitle: "等待 {{message_type}}"
+        message: "{{last_message}}"
+
+      session_end:
+        title: "{{title}}"
+        subtitle: "会话结束"
+        message: "原因: {{reason}}"
