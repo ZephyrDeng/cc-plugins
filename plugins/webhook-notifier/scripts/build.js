@@ -15,7 +15,7 @@ const buildOptions = {
   platform: "node",
   target: "node18",
   format: "cjs", // Use CommonJS for better compatibility
-  outfile: "dist/index.js",
+  outfile: "scripts/bin/index.js",
   banner: {
     js: "#!/usr/bin/env node",
   },
@@ -28,9 +28,9 @@ const buildOptions = {
 
 async function runBuild() {
   try {
-    // Ensure dist directory exists
-    if (!existsSync("dist")) {
-      await mkdir("dist", { recursive: true });
+    // Ensure scripts/bin directory exists
+    if (!existsSync("scripts/bin")) {
+      await mkdir("scripts/bin", { recursive: true });
     }
 
     if (watch) {
@@ -44,10 +44,10 @@ async function runBuild() {
       await build(buildOptions);
 
       // Make executable
-      await chmod("dist/index.js", 0o755);
+      await chmod("scripts/bin/index.js", 0o755);
 
       console.log("✅ Build complete!");
-      console.log("📦 Output: dist/index.js");
+      console.log("📦 Output: scripts/bin/index.js");
     }
   } catch (error) {
     console.error("❌ Build failed:", error);

@@ -5,6 +5,41 @@ All notable changes to the webhook-notifier plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-10-31
+
+### 🎉 重大更新 - TypeScript 完全重写
+
+#### Added
+- ✨ **TypeScript 5.3+ 重写**: 完整类型系统，工业级代码质量
+- 🔔 **macOS 原生通知**: 系统级通知支持，可交互操作按钮
+- 🛠️ **强大 CLI 工具**:
+  - `webhook test` - 测试通知配置
+  - `webhook config` - 配置管理（显示/初始化/验证）
+  - `webhook logs` - 查看通知日志
+- 📝 **YAML 配置系统**: 人性化配置格式，支持环境变量
+- 🔧 **多通知器架构**: 可同时启用 Webhook + macOS 通知
+- ⚡ **重试机制**: Webhook 支持可配置的重试策略
+- 🛡️ **Zod Schema 验证**: 运行时配置验证，确保正确性
+- 📊 **结构化日志**: JSON 格式日志，支持按日期轮转
+- 🎨 **消息模板系统**: 自定义通知标题、副标题和消息格式
+
+#### Changed
+- 🏗️ **构建策略优化**: 预构建分发，用户安装即用（scripts/bin/）
+- 📦 **配置格式**: JSON → YAML，更易读易维护
+- 🔄 **双模式运行**: Hook 模式（自动触发）+ CLI 模式（手动测试）
+- 📂 **项目结构**: 模块化 TypeScript 架构，清晰分层
+
+#### Breaking Changes
+- ⚠️ 配置格式从 JSON 改为 YAML（.webhookrc.yaml）
+- ⚠️ Webhook URL 配置路径变更
+- ⚠️ Hook 脚本接口变更（现在调用 TypeScript 编译后的可执行文件）
+- ⚠️ 构建产物从 dist/ 移至 scripts/bin/（预构建分发）
+
+#### Migration Notes
+- 旧版 1.x 用户需要重新创建配置文件
+- 使用 `webhook config --init` 生成新配置
+- 参考 README 中的配置示例进行迁移
+
 ## [1.2.0] - 2025-01-30
 
 ### Added

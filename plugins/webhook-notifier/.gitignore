@@ -1,0 +1,33 @@
+# Webhook Notifier 插件 .gitignore
+# 允许提交预构建的可执行文件
+
+# Node modules
+node_modules/
+
+# 日志
+logs/
+*.log
+
+# 开发和测试临时文件
+.tmp/
+*.tmp
+
+# 保留 scripts/bin/ 用于预构建分发
+# !scripts/bin/
+
+# 其他构建产物（如果有）
+dist/
+build/
+out/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# 环境配置
+.env
+.env.local
+.env.*.local

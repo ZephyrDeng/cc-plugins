@@ -1,10 +1,10 @@
-# Claude Code Plugins - Serena Enhanced
+# Claude Code Plugins - 专业化插件集合
 
-这是一个专门为 Claude Code 打造的增强型插件仓库，专注于提供高质量的专业化 AI 代理和工具，特别优化了 Serena 索引管理和自动化工作流。
+这是一个符合 wshobson/agents 标准的 Claude Code 插件仓库，专注于提供高质量的专业化 AI 代理和工具。
 
 ## 🎯 项目愿景
 
-我们的目标是为 Claude Code 用户提供最专业、最高效的开发辅助工具集。通过精心设计的插件生态系统，我们让 AI 驱动的开发变得简单、强大且可靠。
+为 Claude Code 用户提供最专业、最高效的开发辅助工具集。通过精心设计的插件生态系统，让 AI 驱动的开发变得简单、强大且可靠。
 
 ## 🏗️ 核心架构
 
@@ -20,47 +20,80 @@
 3. **Hooks (钩子)**: 事件驱动的自动化工作流
 4. **MCP Servers**: 外部工具和服务集成
 
-## 🚀 特色功能
+## 📦 可用插件
 
-### Serena 索引管理
-- **智能初始化**: 自动识别项目类型，优化索引配置
-- **增量重建**: 智能变更检测，高效更新索引
-- **状态监控**: 实时索引健康检查和性能监控
-- **错误恢复**: 自动检测和修复索引损坏问题
+### 🔍 Serena Indexer (索引管理)
+专业的 Serena 索引管理插件，提供异步索引、智能更新和健康监控。
 
-### 专业开发工具
-- **多语言支持**: Python, JavaScript, Go, Rust 等主流语言
-- **架构设计**: 系统架构和 API 设计专家
-- **质量保证**: 代码审查、测试、安全扫描
-- **运维自动化**: 部署、监控、故障处理
+**核心功能**:
+- 智能初始化：自动识别项目类型，优化索引配置
+- 增量重建：智能变更检测，高效更新索引
+- 状态监控：实时索引健康检查和性能监控
+- 错误恢复：自动检测和修复索引损坏问题
+
+**命令**:
+- `/serena-index` - 索引管理和初始化
+- `/serena-status` - 索引状态查询
+- `/serena-cleanup` - 索引清理优化
+
+### 🔔 Webhook Notifier (通知系统)
+现代化的通知系统，使用 TypeScript 5.3+ 开发，支持多种通知方式。
+
+**核心功能**:
+- 双模式运行：Hook 模式（自动）+ CLI 模式（手动）
+- 智能通知：Notification 事件和 Session End 事件
+- 多种通知器：Webhook（飞书/Slack/Discord）+ macOS 原生通知
+- 强大 CLI：测试、配置管理、日志查看
+- YAML 配置：人性化配置，支持环境变量
+
+**命令**:
+- `/webhook-test` - 测试通知配置
+- `/webhook-config` - 配置管理
+- `/webhook-logs` - 查看通知日志
 
 ## 📁 项目结构
 
 ```
-claude-plugins/
+cc-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json          # 市场配置文件
 ├── plugins/                       # 插件目录
-│   └── serena-indexer/           # Serena 索引插件 ⭐
-│       ├── .claude-plugin.json   # 插件配置
+│   ├── serena-indexer/           # Serena 索引管理 ⭐
+│   │   ├── .claude-plugin.json   # 插件配置
+│   │   ├── README.md             # 插件文档
+│   │   ├── CHANGELOG.md          # 更新日志
+│   │   ├── agents/               # AI 代理
+│   │   │   ├── serena-indexer.md
+│   │   │   └── serena-monitor.md
+│   │   ├── commands/             # 用户命令
+│   │   │   ├── serena-index.md
+│   │   │   ├── serena-status.md
+│   │   │   └── serena-cleanup.md
+│   │   ├── hooks/                # 自动化钩子
+│   │   │   ├── hooks.json
+│   │   │   └── serena-auto-index.sh
+│   │   ├── mcp.json              # MCP 配置
+│   │   └── templates/            # 配置模板
+│   │       └── settings.json
+│   └── webhook-notifier/         # Webhook 通知系统 ⭐
 │       ├── README.md             # 插件文档
 │       ├── CHANGELOG.md          # 更新日志
-│       ├── agents/               # AI 代理
-│       │   ├── serena-indexer.md
-│       │   └── serena-monitor.md
-│       ├── commands/             # 用户命令
-│       │   ├── serena-index.md
-│       │   ├── serena-status.md
-│       │   └── serena-cleanup.md
-│       ├── hooks/                # 自动化钩子
-│       │   ├── hooks.json
-│       │   └── serena-auto-index.sh
-│       ├── mcp.json              # MCP 配置
+│       ├── package.json          # NPM 配置
+│       ├── tsconfig.json         # TypeScript 配置
+│       ├── biome.json            # 代码规范配置
+│       ├── src/                  # TypeScript 源码
+│       │   ├── cli/              # CLI 命令
+│       │   ├── core/             # 核心功能
+│       │   ├── extractors/       # 信息提取器
+│       │   ├── notifiers/        # 通知器实现
+│       │   └── types/            # 类型定义
+│       ├── scripts/              # 构建和测试脚本
+│       ├── hooks/                # Claude Code Hook
+│       ├── commands/             # 命令定义
 │       └── templates/            # 配置模板
-│           └── settings.json
 ├── .claude/                      # Claude 配置
-├── CLAUDE.md                     # 项目说明
-└── README.md                     # 本文件
+├── CLAUDE.md                     # 本文件
+└── README.md                     # 项目说明
 ```
 
 ## 🎨 设计原则
@@ -84,8 +117,8 @@ claude-plugins/
 
 ### 插件开发标准
 - **结构一致性**: 所有插件遵循统一的目录结构
-- **配置标准化**: 使用 plugin.json 标准配置格式
-- **文档完整性**: 每个插件都有详细的使用说明
+- **配置标准化**: 使用 `.claude-plugin.json` 标准配置格式
+- **文档完整性**: 每个插件都有详细的 README 和 CHANGELOG
 - **质量保证**: 必须通过功能和性能测试
 
 ### 代码质量要求
@@ -93,27 +126,29 @@ claude-plugins/
 - **模块化**: 功能解耦，便于复用和测试
 - **错误处理**: 完善的错误检测和恢复机制
 - **性能优化**: 高效的执行和资源管理
+- **类型安全**: TypeScript 项目必须有完整的类型定义
 
 ## 🌟 核心优势
 
 1. **深度集成**: 与 Claude Code 无缝集成，提供原生体验
 2. **专业品质**: 工业级质量，适合生产环境使用
 3. **持续更新**: 定期更新和优化，保持技术领先
-4. **社区支持**: 活跃的开发社区和完善的文档支持
-5. **企业就绪**: 满足企业级应用的安全和合规要求
+4. **完善文档**: 详细的使用说明和故障排除指南
+5. **现代技术**: 使用 TypeScript、YAML 等现代技术栈
 
 ## 🚀 快速开始
 
 ### 安装市场
 ```bash
 # 添加本地市场
-/plugin marketplace add /path/to/claude-plugins
+/plugin marketplace add /path/to/cc-plugins
 
-# 安装 Serena 索引插件
+# 安装插件
 /plugin install serena-indexer
+/plugin install webhook-notifier
 ```
 
-### 基础使用
+### Serena Indexer 使用
 ```bash
 # 生成配置并初始化索引
 /serena-index --generate-config
@@ -128,9 +163,29 @@ claude-plugins/
 /serena-cleanup --cache-only
 ```
 
+### Webhook Notifier 使用
+```bash
+# 初始化配置
+/webhook-config --init
+
+# 测试通知
+/webhook-test
+
+# 查看日志
+/webhook-logs --lines 20
+```
+
 ## 🤝 贡献指南
 
-我们欢迎社区贡献！请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解如何参与项目开发。
+我们欢迎社区贡献！贡献新插件时请遵循：
+
+1. 在 `plugins/` 目录下创建新的插件目录
+2. 包含必需的 `.claude-plugin.json` 配置文件
+3. 提供 `agents/` 和 `commands/` 目录
+4. 编写完整的 README 和 CHANGELOG 文档
+5. 确保代码质量和测试覆盖
+
+详见 [CONTRIBUTING.md](./CONTRIBUTING.md)（如有）。
 
 ## 📄 许可证
 

@@ -1,7 +1,7 @@
 {
   "name": "webhook-notifier",
-  "version": "1.2.0",
-  "description": "在 Claude Code 会话事件发生时自动发送 webhook 通知 - 支持智能上下文提取、会话结束和实时等待通知、问题类型识别、自定义 payload、测试命令和日志查看",
+  "version": "2.0.0",
+  "description": "现代化 Claude Code 通知系统 - TypeScript 5.3+ 重写，支持 Webhook(飞书/Slack/Discord) + macOS 原生通知，预构建分发无需编译，提供强大 CLI 工具集和智能上下文提取",
   "author": {
     "name": "Zephyr",
     "email": "zephyrTang@aliyun.com"

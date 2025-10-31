@@ -2,9 +2,9 @@
   "name": "@claude-code/webhook-notifier",
   "version": "2.0.0",
   "description": "Modern webhook and notification plugin for Claude Code",
-  "main": "./dist/index.js",
+  "main": "./scripts/bin/index.js",
   "bin": {
-    "webhook": "./dist/index.js"
+    "webhook": "./scripts/bin/index.js"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",

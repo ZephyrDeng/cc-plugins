@@ -50,14 +50,13 @@
 
 ```bash
 # 通过插件市场安装（推荐）
-/plugin marketplace add /path/to/claude-plugins
+/plugin marketplace add /path/to/cc-plugins
 /plugin install webhook-notifier
 
-# 或手动安装
+# 或手动克隆（预构建版本，无需编译）
 git clone https://github.com/your-repo/webhook-notifier.git
 cd webhook-notifier
-npm install
-npm run build
+# 插件已预构建，可直接使用！
 ```
 
 ### 初始化配置
@@ -390,7 +389,9 @@ webhook-notifier/
 ├── hooks/                # Claude Code Hook 配置
 │   ├── hooks.json        # Hook 配置
 │   └── webhook-notify.sh # Shell wrapper
-├── dist/                 # 构建输出
+├── scripts/bin/          # 预构建可执行文件 ⭐
+│   ├── index.js          # 主入口（已构建）
+│   └── index.js.map      # Source map
 ├── logs/                 # 日志文件
 └── package.json
 ```
@@ -400,12 +401,13 @@ webhook-notifier/
 ### CLI 命令不可用
 
 ```bash
-# 确保构建了项目
-npm run build
+# 插件已预构建，无需执行 npm install/build
+# 直接检查可执行文件
+ls -l scripts/bin/index.js
 
-# 检查 dist/index.js 是否存在且有执行权限
-ls -l dist/index.js
-chmod +x dist/index.js
+# 如需重新构建（开发者）
+npm install
+npm run build
 ```
 
 ### 配置验证失败
