@@ -62,11 +62,20 @@ cd webhook-notifier
 ### 初始化配置
 
 ```bash
-# 创建配置文件
+# 创建用户级配置（推荐，跨项目共享）
 node dist/index.js config --init
+# 或
+node dist/index.js config --init --scope user
 
-# 这将在当前目录创建 .webhookrc.yaml
+# 创建项目级配置（仅当前项目）
+node dist/index.js config --init --scope project
 ```
+
+**配置文件位置**:
+- User scope: `~/.claude/plugins/webhook-notifier/.webhookrc.yaml`
+- Project scope: `<项目目录>/.webhookrc.yaml`
+
+⚠️ **注意**: 如果使用项目级配置，请将 `.webhookrc.yaml` 添加到 `.gitignore`。
 
 ### 配置示例
 
@@ -139,8 +148,12 @@ webhook test --notifier all
 # 显示当前配置
 webhook config --show
 
-# 初始化配置文件
+# 初始化用户级配置（推荐）
 webhook config --init
+webhook config --init --scope user
+
+# 初始化项目级配置
+webhook config --init --scope project
 
 # 验证配置有效性
 webhook config --validate
@@ -168,10 +181,17 @@ webhook logs --follow
 
 ### 配置文件位置
 
-配置文件搜索顺序：
-1. `./webhookrc.yaml` （项目根目录）
-2. `./.webhookrc.yaml` （项目根目录，隐藏文件）
-3. `~/.claude/.webhookrc.yaml` （用户目录）
+配置文件搜索优先级：
+1. 环境变量 `WEBHOOK_CONFIG_PATH`（如果设置）
+2. 用户级配置：`~/.claude/plugins/webhook-notifier/.webhookrc.yaml`（推荐）
+3. 项目级配置：`<项目目录>/.webhookrc.yaml`
+4. 旧用户级配置：`~/.webhookrc.yaml`（向后兼容）
+5. 默认配置
+
+**推荐做法**:
+- 新用户：使用用户级配置（`--init` 默认行为）
+- 特定项目需求：使用项目级配置（`--init --scope project`）
+- 项目级配置记得添加到 `.gitignore`
 
 ### 完整配置结构
 

@@ -53,6 +53,11 @@ export async function logsCommand(options: {
     }
 
     const latestLog = logFiles[0];
+    if (!latestLog) {
+      console.log("ℹ️  No log files found");
+      return;
+    }
+
     console.log(`📋 Viewing: ${latestLog.name}`);
     console.log(`📁 Location: ${logDir}`);
     console.log("─".repeat(80));

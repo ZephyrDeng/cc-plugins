@@ -47,6 +47,7 @@ import { logsCommand } from "./cli/logs.js";
       .option("-s, --show", "显示当前配置")
       .option("-i, --init", "初始化配置文件")
       .option("-v, --validate", "验证配置")
+      .option("--scope <type>", "配置范围: user (默认) | project", "user")
       .action(configCommand);
 
     // Logs 命令

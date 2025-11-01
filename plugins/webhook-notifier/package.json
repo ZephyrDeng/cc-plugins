@@ -1,6 +1,6 @@
 {
   "name": "@claude-code/webhook-notifier",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Modern webhook and notification plugin for Claude Code",
   "main": "./scripts/bin/index.js",
   "bin": {
