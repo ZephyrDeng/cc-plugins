@@ -5,6 +5,43 @@ All notable changes to the webhook-notifier plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-11-01
+
+### Added
+- 🎯 **`--scope` 参数支持**: 支持用户级和项目级配置选择
+  - `webhook config --init --scope user` - 创建用户级配置（默认）
+  - `webhook config --init --scope project` - 创建项目级配置
+- 📁 **用户级配置目录**: 默认配置路径为 `~/.claude/plugins/webhook-notifier/.webhookrc.yaml`
+- 🔧 **自动目录创建**: 用户级配置目录不存在时自动创建
+- 💡 **Git 污染提示**: 项目级配置时提醒用户添加到 `.gitignore`
+
+### Changed
+- 📂 **配置优先级调整**: 用户级配置现在优先于项目级配置
+  1. 环境变量 `WEBHOOK_CONFIG_PATH`
+  2. 用户级配置（新优先）
+  3. 项目级配置（向后兼容）
+  4. 旧用户级配置
+  5. 默认配置
+- 📝 **默认行为**: `--init` 命令现在默认创建用户级配置
+
+### Fixed
+- 🐛 **修复 Git 污染问题**: 默认配置不再创建到项目目录，避免污染代码仓库
+- 🛡️ **向后兼容性**: 现有项目配置继续正常工作，无需迁移
+
+### Documentation
+- 📖 **更新 README**: 详细说明配置文件位置和 `--scope` 参数用法
+- 📋 **最佳实践指南**: 添加配置选择建议和 `.gitignore` 提醒
+
+### Technical Details
+- 新增 `ConfigManager.getConfigPath(scope)` 静态方法
+- 优化配置查找路径顺序
+- 完善错误处理和用户提示
+
+### Benefits
+- ✅ **零污染**: 新用户默认配置不影响项目仓库
+- ✅ **灵活性**: 支持跨项目共享配置和项目特定配置
+- ✅ **兼容性**: 完全向后兼容，现有用户无需操作
+
 ## [2.0.0] - 2025-10-31
 
 ### 🎉 重大更新 - TypeScript 完全重写

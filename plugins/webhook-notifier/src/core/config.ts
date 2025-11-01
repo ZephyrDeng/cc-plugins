@@ -28,19 +28,20 @@ export class ConfigManager {
    */
   private findAndLoadConfig(): { config: Config; path: string | null } {
     const searchPaths = [
-      // 项目级配置
+      // 用户级配置（优先）
+      join(homedir(), ".claude/plugins/webhook-notifier/.webhookrc.yaml"),
+      join(homedir(), ".claude/plugins/webhook-notifier/.webhookrc.yml"),
+      join(homedir(), ".claude/plugins/webhook-notifier/.webhookrc.json"),
+
+      // 项目级配置（向后兼容）
       join(process.cwd(), ".webhookrc.yaml"),
       join(process.cwd(), ".webhookrc.yml"),
       join(process.cwd(), ".webhookrc.json"),
 
-      // 用户级配置
+      // 旧用户级配置（兼容旧版本）
       join(homedir(), ".webhookrc.yaml"),
       join(homedir(), ".webhookrc.yml"),
       join(homedir(), ".webhookrc.json"),
-
-      // Claude Code 目录
-      join(homedir(), ".claude/webhook-notifier/config.yaml"),
-      join(homedir(), ".claude/webhook-notifier/config.json"),
     ];
 
     for (const path of searchPaths) {
@@ -227,5 +228,15 @@ export class ConfigManager {
    */
   getLogDirectory(): string {
     return this.expandPath(this.config.logging.directory);
+  }
+
+  /**
+   * 获取指定 scope 的配置文件路径
+   */
+  static getConfigPath(scope: "user" | "project"): string {
+    if (scope === "user") {
+      return join(homedir(), ".claude/plugins/webhook-notifier/.webhookrc.yaml");
+    }
+    return join(process.cwd(), ".webhookrc.yaml");
   }
 }

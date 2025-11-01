@@ -46,6 +46,14 @@ export class WebhookNotifier extends BaseNotifier {
       };
     }
 
+    if (!webhookConfig.url) {
+      return {
+        success: false,
+        notifier: "webhook",
+        error: new Error("Webhook URL is required"),
+      };
+    }
+
     try {
       const payload = this.buildPayload(event, webhookConfig);
       this.logger.debug("Webhook payload", payload);

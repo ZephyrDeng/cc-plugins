@@ -2,8 +2,8 @@
  * CLI Config Command
  * 配置管理
  */
-import { existsSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, writeFileSync, copyFileSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
 import { stringify } from "yaml";
 import { ConfigManager } from "../core/config.js";
 import { DEFAULT_CONFIG } from "../types/config.js";
@@ -12,10 +12,11 @@ export async function configCommand(options: {
   show?: boolean;
   init?: boolean;
   validate?: boolean;
+  scope?: "user" | "project";
 }): Promise<void> {
   try {
     if (options.init) {
-      await initConfig();
+      await initConfig(options.scope || "user");
     } else if (options.show) {
       await showConfig();
     } else if (options.validate) {
@@ -30,13 +31,21 @@ export async function configCommand(options: {
   }
 }
 
-async function initConfig(): Promise<void> {
-  const configPath = join(process.cwd(), ".webhookrc.yaml");
+async function initConfig(scope: "user" | "project" = "user"): Promise<void> {
+  const configPath = ConfigManager.getConfigPath(scope);
 
   if (existsSync(configPath)) {
     console.error(`❌ Config file already exists: ${configPath}`);
     console.log("💡 Use --show to view current config");
     process.exit(1);
+  }
+
+  // 确保目录存在（用户级配置需要）
+  if (scope === "user") {
+    const configDir = dirname(configPath);
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, { recursive: true });
+    }
   }
 
   // 生成默认配置文件
@@ -45,7 +54,14 @@ async function initConfig(): Promise<void> {
 
   console.log("✅ Configuration file created successfully!");
   console.log(`📁 Location: ${configPath}`);
-  console.log("\n💡 Edit this file to customize your notification settings");
+  console.log(`🔧 Scope: ${scope}`);
+
+  if (scope === "project") {
+    console.log("\n💡 建议: 将 .webhookrc.yaml 添加到 .gitignore");
+    console.log("   避免将个人配置提交到代码仓库");
+  }
+
+  console.log("\n📝 Edit this file to customize your notification settings");
 }
 
 async function showConfig(): Promise<void> {
